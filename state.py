@@ -1,4 +1,3 @@
-
 import random
 from numpy import ndarray
 import numpy as np
@@ -6,13 +5,13 @@ from enum import Enum
 
 from boats import Boat
 
-
 """
 1. Implement increased movement cost for state based on obstacle density
     -How to assess density?
     -
 
 """
+
 
 class State:
     class StateType(Enum):
@@ -29,30 +28,30 @@ class State:
     objectivesResolved: list[tuple[StateType, bool]] = []
     movementCost: int = None
 
-
     def __init__(self, p_stateTypes: list[StateType], p_moveCost: int = 1):
         self.types = p_stateTypes
         self.movementCost = p_moveCost
 
         # Checks whether this state is one of the goal states, then adds the present objectives to a tuple of the form (StateType, bool) representing whether it has been resolved
         for type in self.types:
-            if (type == State.StateType.RESCUE_GOAL) or (type == State.StateType.MEDICAL_GOAL) or (type == State.StateType.TECHNICAL_GOAL):
-                self.objectivesResolved.append( (type, False) )
+            if (type == State.StateType.RESCUE_GOAL) or (type == State.StateType.MEDICAL_GOAL) or (
+                    type == State.StateType.TECHNICAL_GOAL):
+                self.objectivesResolved.append((type, False))
 
 
 class GridSquare:
     state: State = None
     boat: Boat = None
 
-    def __init__(self, p_state: State=None, p_boat: Boat=None):
+    def __init__(self, p_state: State = None, p_boat: Boat = None):
         if p_state is None:
             raise Exception('Provided state cannot be None')
 
         self.state = p_state
         self.boat = p_boat
 
-class StatesGrid:
 
+class StatesGrid:
     numColumns: int = None
     numRows: int = None
     numBlockers: int = None
@@ -63,7 +62,9 @@ class StatesGrid:
 
     numStartPoints: int = None
 
-    def __init__(self, p_numCols: int=None, p_numRows: int=None, p_numBlockers: int=None, p_numRescueGoals: int=None, p_numMedicalGoals: int=None, p_numTechnicalGoals: int=None, p_numStartPoints: int=None):
+    def __init__(self, p_numCols: int = None, p_numRows: int = None, p_numBlockers: int = None,
+                 p_numRescueGoals: int = None, p_numMedicalGoals: int = None, p_numTechnicalGoals: int = None,
+                 p_numStartPoints: int = None):
         if p_numCols is None:
             raise Exception('p_width cannot be None')
         if p_numRows is None:
@@ -87,7 +88,6 @@ class StatesGrid:
         self.numTechnicalGoals = p_numTechnicalGoals
         self.numStartPoints = p_numStartPoints
 
-
     def generateNewRandomGrid(self) -> ndarray[GridSquare]:
         finalGrid: ndarray = ndarray(shape=(self.numRows, self.numColumns), dtype=GridSquare)
 
@@ -96,4 +96,3 @@ class StatesGrid:
         # for i in range(self.numRows):
         #     for j in range(self.numColumns):
         #         finalGrid[i, j] =
-
