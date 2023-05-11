@@ -12,6 +12,7 @@ This task includes interdependent tasks like clearing debris to access trapped v
 """
 import math
 import random
+import numpy
 
 from numpy import ndarray
 import numpy as np
