@@ -52,7 +52,7 @@ class Location:
     # Entries are of the form:  {Location#: Distance}
     distances: dict[int, float] = None
     # Entries are of the form:  {Location#: Duration}
-    durations: dict[int, tuple[float, float]] = None
+    durations: dict[int, tuple[float, float]] = {}
 
     def __init__(self, p_number: int, p_activities: list[Activity] = None, p_coords: tuple[int, int] = None):
         self.number = p_number
@@ -181,6 +181,7 @@ def draw_graph(G, dim):
     plt.show()
 
 
+
 def print_edges(G):
     intra_edges = []
     inter_edges = []
@@ -211,7 +212,7 @@ m_edge_time_attribute_name: str = 'duration'
 m_difficulty_modifier: float = 1.0  # Varies between zero and 1
 m_base_speed: float = 1.0
 
-num_locations: int = 10
+num_locations: int = 5
 points_list: list[tuple[int, int]] = []
 locations_list: list[Location] = []
 
@@ -251,12 +252,13 @@ for i in range(1, num_locations + 1):
     temp_location.fill_location_with_random_activities()
     locations_list.append(temp_location)
 
+
 for loc1 in locations_list:
     for loc2 in locations_list:
         if loc1.number != loc2.number:
             distance = Location.calculate_distance_between_locations(loc1.coords, loc2.coords)
             loc1.distances[loc2.number] = distance
-            duration = calculate_duration_from_distance(distance)
+            duration = Location.calculate_duration_from_distance(distance)
             loc1.durations[loc2.number] = duration
 
 
