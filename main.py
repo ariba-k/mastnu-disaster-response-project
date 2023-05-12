@@ -46,6 +46,8 @@ class Location:
 
     # Entries are of the form:  {Location#: Distance}
     distances: dict[int, float] = None
+    # Entries are of the form:  {Location#: Duration}
+    durations: dict[int, tuple[float, float]] = None
 
     def __init__(self, p_number: int, p_activities: list[Activity] = None, p_coords: tuple[int, int] = None):
         self.number = p_number
@@ -72,6 +74,16 @@ class Location:
         # FIXME: Does this return what I think it does?
         return math.dist(p_point1, p_point2)
 
+    @staticmethod
+    def calculate_duration_from_distance(distance: float) -> tuple[float, float]:
+        # Replace with randomly generated number
+        min_speed, max_speed = 5, 10
+
+        min_duration = distance / max_speed
+        max_duration = distance / min_speed
+
+        return min_duration, max_duration
+
 
 def create_graph(locations: list[Location]):
     G = nx.DiGraph()
@@ -90,10 +102,13 @@ def create_graph(locations: list[Location]):
             for other_location in locations:
                 # Connect activities of the same type between locations in ascending order (inter-edges)
                 if other_location.number > location.number:
+                    # Finds the next activity with the same type as the current activity
                     other_activity = next((a for a in other_location.activities if a.type == activity.type), None)
                     if other_activity:
+                        duration = location.durations[other_location.number]
+
                         G.add_edge((location.number, activity.type), (other_location.number, other_activity.type),
-                                   edge_type='inter', color='k')
+                                   edge_type='inter', color='k', duration=duration)
     return G
 
 
@@ -121,13 +136,16 @@ def draw_graph(G, dim):
                                   markerfacecolor=color_map[activity_type])
                        for activity_type in Activity.ActivityType]
 
+    avg_location_distance = sum(loc1.distances[loc2.number] for loc1 in locations_list for loc2 in locations_list if
+                                loc1.number != loc2.number) / (num_locations * (num_locations - 1))
+
+    radius_scaling_factor = 0.25
+
     # Draw circles and location labels
     for loc in locations_list:
         # Draw a circle around activities within a location
-        max_activity_distance = max(
-            math.dist(pos[loc.number, at1], pos[loc.number, at2]) for at1 in Activity.ActivityType for at2 in
-            Activity.ActivityType) / 2
-        circle = plt.Circle((loc.coords[1], nrows - loc.coords[0]), max_activity_distance, fill=False,
+        circle_radius = avg_location_distance * radius_scaling_factor
+        circle = plt.Circle((loc.coords[1], nrows - loc.coords[0]), circle_radius, fill=False,
                             color=f'C{loc.number % 10}', linestyle='dashed', linewidth=1)
         ax.add_artist(circle)
 
@@ -141,7 +159,7 @@ def draw_graph(G, dim):
     plt.show()
 
 
-num_locations: int = 2
+num_locations: int = 6
 points_list: list[tuple[int, int]] = []
 locations_list: list[Location] = []
 
@@ -170,7 +188,11 @@ for i in range(1, num_locations + 1):
 for loc1 in locations_list:
     for loc2 in locations_list:
         if loc1.number != loc2.number:
-            loc1.distances[loc2.number] = Location.calculate_distance_between_locations(loc1.coords, loc2.coords)
+            distance = Location.calculate_distance_between_locations(loc1.coords, loc2.coords)
+            loc1.distances[loc2.number] = distance
+
+            duration = calculate_duration_from_distance(distance)
+            loc1.durations[loc2.number] = duration
 
 
 def print_edges(G):
@@ -183,13 +205,15 @@ def print_edges(G):
         elif edge[2]['edge_type'] == 'inter':
             inter_edges.append(edge)
 
-    print("Intra-location edges:")
-    for edge in intra_edges:
-        print(edge)
+    print("\nInter-location edges:")
+    for edge in inter_edges:
+        print(edge, "Duration:", edge[2]["duration"])
 
     print("\nInter-location edges:")
     for edge in inter_edges:
         print(edge)
+
+
 
 
 G = create_graph(locations_list)
