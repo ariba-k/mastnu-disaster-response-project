@@ -12,6 +12,8 @@ This task includes interdependent tasks like clearing debris to access trapped v
 """
 import math
 import random
+
+import networkx
 import numpy
 
 from numpy import ndarray
@@ -31,6 +33,9 @@ class Activity:
 
     #     Type
     type: ActivityType = None
+
+    # Duration
+    duration: tuple[int, int]
 
     #     Links
     # TODO: What to do with this?
@@ -78,22 +83,39 @@ def create_graph(locations: list[Location]):
     for location in locations:
         activity_count = len(location.activities)
         for idx, activity in enumerate(location.activities):
+            duration: tuple[int, int] = None
+            match activity.type:
+                case Activity.ActivityType.TECHNICAL:
+                    duration = generateRandomWindow(m_technical_activity_time_range)
+                case Activity.ActivityType.MEDICAL:
+                    duration = generateRandomWindow(m_medical_activity_time_range)
+                case Activity.ActivityType.RESCUE:
+                    duration = generateRandomWindow(m_rescue_activity_time_range)
+                case default:
+                    pass
+            activity.duration = duration
+
             G.add_node((location.number, activity.type), activity=activity)
 
             # Connect activities within the same location (intra-edges)
             if idx < activity_count - 1:
                 next_activity = location.activities[idx + 1]
                 # connectionstyle="arc3,rad=0.1"
-                G.add_edge((location.number, activity.type), (location.number, next_activity.type),
+                u_of_edge = (location.number, activity.type)
+                v_of_edge = (location.number, next_activity.type)
+                G.add_edge(u_of_edge, v_of_edge,
                            edge_type='intra', color='b')
+
+                G.edges[u_of_edge, v_of_edge].update({m_edge_time_attribute_name:duration})
 
             for other_location in locations:
                 # Connect activities of the same type between locations in ascending order (inter-edges)
                 if other_location.number > location.number:
                     other_activity = next((a for a in other_location.activities if a.type == activity.type), None)
-                    if other_activity:
+                    if other_activity is not None:
                         G.add_edge((location.number, activity.type), (other_location.number, other_activity.type),
                                    edge_type='inter', color='k')
+                        break
     return G
 
 
@@ -141,9 +163,53 @@ def draw_graph(G, dim):
     plt.show()
 
 
-num_locations: int = 2
+def print_edges(G):
+    intra_edges = []
+    inter_edges = []
+
+    for edge in G.edges(data=True):
+        if edge[2]['edge_type'] == 'intra':
+            intra_edges.append(edge)
+        elif edge[2]['edge_type'] == 'inter':
+            inter_edges.append(edge)
+
+    print("Intra-location edges:")
+    for edge in intra_edges:
+        print(edge)
+
+    print("\nInter-location edges:")
+    for edge in inter_edges:
+        print(edge)
+
+def generateRandomWindow(p_specs: tuple[int, int, int]) -> tuple[int, int]:
+    start, stop, step = p_specs
+    time1 = random.randrange(start=start, stop=stop, step=step)
+    time2 = random.randrange(start=start, stop=stop, step=step)
+    tempList: list[int] = sorted([time1, time2])
+    return tempList[0], tempList[1]
+
+# ===== MEMBER VARIABLES =====
+m_edge_time_attribute_name: str = 'duration'
+m_difficulty_modifier: float = 1.0  # Varies between zero and 1
+m_base_speed: float = 1.0
+
+num_locations: int = 10
 points_list: list[tuple[int, int]] = []
 locations_list: list[Location] = []
+
+# Technical Boat Params
+# Min, and Max times plus time step in minutes
+m_technical_activity_time_range: tuple[int, int, int] = (30, 40, 1)
+m_technical_speed: float = m_base_speed*0.5
+
+# Medical Boat Params
+m_medical_activity_time_range: tuple[int, int, int] = (15, 20, 1)
+m_medical_speed: float = m_base_speed*1
+
+# Rescue Boat Params
+m_rescue_speed: float = m_base_speed*2
+m_rescue_activity_time_range: tuple[int, int, int] = (10, 15, 1)
+
 
 # ==== STEPS TO LOOP FOR EACH SIMULATION ====
 # Create nxn grid
@@ -171,26 +237,6 @@ for loc1 in locations_list:
     for loc2 in locations_list:
         if loc1.number != loc2.number:
             loc1.distances[loc2.number] = Location.calculate_distance_between_locations(loc1.coords, loc2.coords)
-
-
-def print_edges(G):
-    intra_edges = []
-    inter_edges = []
-
-    for edge in G.edges(data=True):
-        if edge[2]['edge_type'] == 'intra':
-            intra_edges.append(edge)
-        elif edge[2]['edge_type'] == 'inter':
-            inter_edges.append(edge)
-
-    print("Intra-location edges:")
-    for edge in intra_edges:
-        print(edge)
-
-    print("\nInter-location edges:")
-    for edge in inter_edges:
-        print(edge)
-
 
 G = create_graph(locations_list)
 print(G)
