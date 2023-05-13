@@ -269,8 +269,8 @@ def draw_mastnu(G):
 
     edge_colors = [edge[2]['color'] for edge in G.edges(data=True)]
 
-    nx.draw_networkx_edges(G, pos, edgelist=intra_edges, edge_color=edge_colors, width=2.0, alpha=0.8)
-    nx.draw_networkx_edges(G, pos, edgelist=inter_edges, edge_color=edge_colors, width=2.0, alpha=0.8)
+    nx.draw_networkx_edges(G, pos, edgelist=intra_edges, edge_color='blue', width=2.0, alpha=0.8)
+    nx.draw_networkx_edges(G, pos, edgelist=inter_edges, edge_color='black', width=2.0, alpha=0.8)
 
     labels = {(location_number, activity_type): f"{activity_type.name}\n({location_number})"
               for location_number, activity_type in G.nodes}
@@ -292,4 +292,4 @@ G = create_graph(locations_list)
 draw_mastnu(G)
 
 print_edges(G)
-# draw_graph(G, (cols, rows))
+draw_graph(G, (cols, rows))
