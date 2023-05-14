@@ -215,7 +215,8 @@ def generate_random_window(p_specs: tuple[int, int, int]) -> tuple[int, int]:
     start, stop, step = p_specs
     time1 = random.randrange(start=start, stop=stop, step=step)
     time2 = random.randrange(start=start, stop=stop, step=step)
-    tempList: list[int] = sorted([time1, time2])
+    tempList: list[int] = list((time1, time2))
+    tempList.sort()
     return tempList[0], tempList[1]
 
 
@@ -382,7 +383,7 @@ currTestNum: int = 1
 sampleTest: bool = False
 
 logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests*0.00903:.5f} seconds')
-Time.sleep(2)
+Time.sleep(3)
 
 totalStartTime: float = time()
 for mapSize in m_map_sizes:
