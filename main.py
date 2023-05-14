@@ -376,22 +376,23 @@ currTestNum: int = 1
 sampleTest: bool = False
 for mapSize in m_map_sizes:
     for numLocations in m_nums_locations:
-        if currTestNum in m_test_numbers_to_sample:
-            sampleTest = True
-        else:
-            sampleTest = False
+        for i in range(start=1, stop=m_num_tests_per_difficulty):
+            if currTestNum in m_test_numbers_to_sample:
+                sampleTest = True
+            else:
+                sampleTest = False
 
-        tempTest: TestObject = generateTest(p_mapSize=mapSize, p_numLocations=numLocations)
+            tempTest: TestObject = generateTest(p_mapSize=mapSize, p_numLocations=numLocations)
 
-        testSucceeded: bool = scheduleTest(p_test=tempTest)
-        tempTest.succeeded = testSucceeded
-        if testSucceeded:
-            m_num_tests_succeeded += 1
+            testSucceeded: bool = scheduleTest(p_test=tempTest)
+            tempTest.succeeded = testSucceeded
+            if testSucceeded:
+                m_num_tests_succeeded += 1
 
-        if sampleTest:
-            m_sampled_tests.add(tempTest)
+            if sampleTest:
+                m_sampled_tests.add(tempTest)
 
-        currTestNum += 1
+            currTestNum += 1
 
 for test in m_sampled_tests:
     graph = test.netx_graph
