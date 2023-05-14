@@ -404,6 +404,7 @@ for mapSize in m_map_sizes:
             testTime: float = (testEndTime - testStartTime)
 
             tempTest.succeeded = testSucceeded
+            tempTest.test_time = testTime
             m_all_tests.add(tempTest)
             logging.info(msg=f'Test complete. {testTime:.4f} seconds elapsed\n')
 
@@ -414,6 +415,7 @@ for mapSize in m_map_sizes:
                 m_sampled_tests.add(tempTest)
 
             currTestNum += 1
+
 totalEndTime: float = time()
 logging.info(
     msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime - totalStartTime):.4f} seconds')
