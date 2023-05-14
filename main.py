@@ -37,12 +37,14 @@ and lessons learned
 
 
 def scheduleTest(p_test: TestObject = None) -> bool:
-    if p_test is None:
-        raise Exception('p_test cannot be None')
-    raise NotImplementedError()
     """
     Shashank put a call to your MaSTNU code here
     """
+    if p_test is None:
+        raise Exception('p_test cannot be None')
+
+    raise NotImplementedError()
+
 
 
 class TestObject:
@@ -182,8 +184,7 @@ def draw_graph(G, dim, p_num_locations: int = None):
                                   markerfacecolor=color_map[activity_type])
                        for activity_type in Activity.ActivityType]
 
-    avg_location_distance = sum(loc1.distances[loc2.number] for loc1 in locations_list for loc2 in locations_list if
-                                loc1.number != loc2.number) / (p_num_locations * (p_num_locations - 1))
+    avg_location_distance = sum(loc1.distances[loc2.number] for loc1 in locations_list for loc2 in locations_list if loc1.number != loc2.number) / (p_num_locations * (p_num_locations - 1))
 
     radius_scaling_factor = 0.25
 
@@ -212,35 +213,6 @@ def generate_random_window(p_specs: tuple[int, int, int]) -> tuple[int, int]:
     time2 = random.randrange(start=start, stop=stop, step=step)
     tempList: list[int] = sorted([time1, time2])
     return tempList[0], tempList[1]
-
-
-# # ==== STEPS TO LOOP FOR EACH SIMULATION ====
-# # Create nxn grid
-# rows = 10 * m_num_locations
-# cols = rows
-#
-# # Create Locations at random points
-# for i in range(1, m_num_locations + 1):
-#     # Generates random points until one is made that isn't already in the list of points
-#     rand_point: tuple[int, int]
-#     while True:
-#         rand_row: int = random.randrange(0, rows)
-#         rand_col: int = random.randrange(0, rows)
-#         rand_point = (rand_row, rand_col)
-#
-#         if not (rand_point in points_list):
-#             points_list.append(rand_point)
-#             break
-#
-#     temp_location: Location = Location(p_number=i, p_coords=rand_point)
-#     temp_location.fill_location_with_random_activities()
-#     locations_list.append(temp_location)
-
-# for loc1 in locations_list:
-#     for loc2 in locations_list:
-#         if loc1.number != loc2.number:
-#             loc1.calculate_distance_between_locations(loc2)
-#             loc1.generate_location_duration(loc2)
 
 
 def print_edges(G):
@@ -300,8 +272,8 @@ def draw_mastnu(G):
 
     edge_colors = [edge[2]['color'] for edge in G.edges(data=True)]
 
-    nx.draw_networkx_edges(G, pos, edgelist=intra_edges, edge_color=edge_colors, width=2.0, alpha=0.8)
-    nx.draw_networkx_edges(G, pos, edgelist=inter_edges, edge_color=edge_colors, width=2.0, alpha=0.8)
+    nx.draw_networkx_edges(G, pos, edgelist=intra_edges, edge_color='blue', width=2.0, alpha=0.8)
+    nx.draw_networkx_edges(G, pos, edgelist=inter_edges, edge_color='black', width=2.0, alpha=0.8)
 
     labels = {(location_number, activity_type): f"{activity_type.name}\n({location_number})"
               for location_number, activity_type in G.nodes}
@@ -321,7 +293,6 @@ def draw_mastnu(G):
 
 def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None) -> list[Location]:
     tempLocationsList: list[Location] = []
-
     for i in range(1, p_numLocations + 1):
 
         # Generates random points until one is made that isn't already in the list of points
