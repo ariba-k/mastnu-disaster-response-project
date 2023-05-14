@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from networkx import DiGraph
 from logging import Logger
+import time as Time
 from time import time
 
 """
@@ -380,6 +381,10 @@ m_sampled_tests: set[TestObject] = set()
 # ===== MAIN SCRIPT BODY =====
 currTestNum: int = 1
 sampleTest: bool = False
+
+logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests*0.00903:.5f} seconds')
+Time.sleep(2)
+
 totalStartTime: float = time()
 for mapSize in m_map_sizes:
     for numLocations in m_nums_locations:
@@ -413,6 +418,6 @@ totalEndTime: float = time()
 logging.info(
     msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime - totalStartTime):.4f} seconds')
 
-for test in m_sampled_tests:
-    graph = test.netx_graph
-    print_edges(graph)
+# for test in m_sampled_tests:
+#     graph = test.netx_graph
+#     print_edges(graph)
