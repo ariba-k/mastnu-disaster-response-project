@@ -8,6 +8,60 @@ from typing import Dict
 
 import matplotlib.pyplot as plt
 import networkx as nx
+from networkx import DiGraph
+
+"""
+1. Num of difficulties: 
+2. Qualities of each of level of difficulty
+3. Other products from each level of difficulty (plots, graphs, etc)
+
+======== REPORT GUIDELINES ========
+The entire final report should be comprised of a 1 page summary
+and a ~4 page report.
+In total, your final report should include:
+1. Cover page
+2. Summary of motivation and problem statement. (1 page)
+3. Abstract
+4. Motivation
+5. Problem statement
+6. Background
+7. Method
+8. Any notable implementation details
+9. Evaluation, analytical and/or empirical
+10. Demonstration, including your simulation demonstration during Grand Challenge
+11. Discussion, including any surprises that discovered, any major insights you gained along the way
+and lessons learned
+12. Conclusion
+
+"""
+
+
+def scheduleTest(p_test: TestObject = None) -> bool:
+    if p_test is None:
+        raise Exception('p_test cannot be None')
+    raise NotImplementedError()
+    """
+    Shashank put a call to your MaSTNU code here
+    """
+
+
+class TestObject:
+    locations: list[Location] = None
+    netx_graph: DiGraph = None
+    map_size: int = None
+    succeeded: bool = None
+
+    def __init__(self, p_locations: list[Location] = None, p_netx_graph: DiGraph = None, p_map_size: int = None):
+        if p_locations is None:
+            raise Exception('p_locations cannot be None')
+        if p_netx_graph is None:
+            raise Exception('p_netx_graph cannot be None')
+        if p_map_size is None:
+            raise Exception('p_map_size cannot be None')
+
+        self.locations = p_locations
+        self.netx_graph = p_netx_graph
+        self.map_size = p_map_size
 
 
 class Activity:
@@ -109,7 +163,7 @@ def create_graph(locations: list[Location]):
     return G
 
 
-def draw_graph(G, dim):
+def draw_graph(G, dim, p_num_locations: int = None):
     ncols, nrows = dim
     fig, ax = plt.subplots()
 
@@ -129,7 +183,7 @@ def draw_graph(G, dim):
                        for activity_type in Activity.ActivityType]
 
     avg_location_distance = sum(loc1.distances[loc2.number] for loc1 in locations_list for loc2 in locations_list if
-                                loc1.number != loc2.number) / (num_locations * (num_locations - 1))
+                                loc1.number != loc2.number) / (p_num_locations * (p_num_locations - 1))
 
     radius_scaling_factor = 0.25
 
@@ -160,56 +214,33 @@ def generate_random_window(p_specs: tuple[int, int, int]) -> tuple[int, int]:
     return tempList[0], tempList[1]
 
 
-# ===== MEMBER VARIABLES =====
-m_difficulty_modifier: float = 1.0  # Varies between zero and 1
-m_base_speed: float = 5.0
+# # ==== STEPS TO LOOP FOR EACH SIMULATION ====
+# # Create nxn grid
+# rows = 10 * m_num_locations
+# cols = rows
+#
+# # Create Locations at random points
+# for i in range(1, m_num_locations + 1):
+#     # Generates random points until one is made that isn't already in the list of points
+#     rand_point: tuple[int, int]
+#     while True:
+#         rand_row: int = random.randrange(0, rows)
+#         rand_col: int = random.randrange(0, rows)
+#         rand_point = (rand_row, rand_col)
+#
+#         if not (rand_point in points_list):
+#             points_list.append(rand_point)
+#             break
+#
+#     temp_location: Location = Location(p_number=i, p_coords=rand_point)
+#     temp_location.fill_location_with_random_activities()
+#     locations_list.append(temp_location)
 
-num_locations: int = 2
-points_list: list[tuple[int, int]] = []
-locations_list: list[Location] = []
-
-# Technical Boat Params
-# Min, and Max times plus time step in minutes
-
-activity_times = {Activity.ActivityType.TECHNICAL: (30, 40, 1),
-                  Activity.ActivityType.MEDICAL: (15, 20, 1),
-                  Activity.ActivityType.RESCUE: (10, 15, 1)}
-
-boat_speeds = {Activity.ActivityType.TECHNICAL: (m_base_speed * 0.5, m_base_speed * 1.5, 1),
-               Activity.ActivityType.MEDICAL: (m_base_speed * 1, m_base_speed * 2, 1),
-               Activity.ActivityType.RESCUE: (m_base_speed * 2, m_base_speed * 3, 1)}
-
-color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
-             Activity.ActivityType.RESCUE: "lightgreen",
-             Activity.ActivityType.MEDICAL: "salmon"}
-
-# ==== STEPS TO LOOP FOR EACH SIMULATION ====
-# Create nxn grid
-rows = 10 * num_locations
-cols = rows
-
-# Create Locations at random points
-for i in range(1, num_locations + 1):
-    # Generates random points until one is made that isn't already in the list of points
-    rand_point: tuple[int, int]
-    while True:
-        rand_row: int = random.randrange(0, rows)
-        rand_col: int = random.randrange(0, rows)
-        rand_point = (rand_row, rand_col)
-
-        if not (rand_point in points_list):
-            points_list.append(rand_point)
-            break
-
-    temp_location: Location = Location(p_number=i, p_coords=rand_point)
-    temp_location.fill_location_with_random_activities()
-    locations_list.append(temp_location)
-
-for loc1 in locations_list:
-    for loc2 in locations_list:
-        if loc1.number != loc2.number:
-            loc1.calculate_distance_between_locations(loc2)
-            loc1.generate_location_duration(loc2)
+# for loc1 in locations_list:
+#     for loc2 in locations_list:
+#         if loc1.number != loc2.number:
+#             loc1.calculate_distance_between_locations(loc2)
+#             loc1.generate_location_duration(loc2)
 
 
 def print_edges(G):
@@ -288,8 +319,109 @@ def draw_mastnu(G):
     plt.show()
 
 
-G = create_graph(locations_list)
-draw_mastnu(G)
+def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None) -> list[Location]:
+    tempLocationsList: list[Location] = []
 
-print_edges(G)
-# draw_graph(G, (cols, rows))
+    for i in range(1, p_numLocations + 1):
+
+        # Generates random points until one is made that isn't already in the list of points
+        rand_point: tuple[int, int]
+        while True:
+            rand_row: int = random.randrange(0, p_mapSize)
+            rand_col: int = random.randrange(0, p_mapSize)
+            rand_point = (rand_row, rand_col)
+
+            if not (rand_point in points_list):
+                points_list.append(rand_point)
+                break
+
+        temp_location: Location = Location(p_number=i, p_coords=rand_point)
+        temp_location.fill_location_with_random_activities()
+        tempLocationsList.append(temp_location)
+
+    for loc1 in tempLocationsList:
+        for loc2 in tempLocationsList:
+            if loc1.number != loc2.number:
+                loc1.calculate_distance_between_locations(loc2)
+                loc1.generate_location_duration(loc2)
+
+    return tempLocationsList
+
+
+def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObject:
+    if p_mapSize is None:
+        raise Exception('p_mapSize cannot be None')
+    if p_mapSize < 10:
+        raise Exception('p_mapSize must be at least 10x10')
+    if p_numLocations is None:
+        raise Exception('p_numLocations cannot be None')
+
+    finalTest: TestObject
+
+    # Generate list of locations
+    locationsList: list[Location] = generateListOfLocations(p_numLocations=p_numLocations)
+    G = create_graph(locationsList)
+    finalTest = TestObject(p_locations=locationsList, p_netx_graph=G, p_map_size=p_mapSize)
+    return finalTest
+
+
+# ===== MEMBER VARIABLES =====
+m_base_speed: float = 5.0
+
+points_list: list[tuple[int, int]] = []
+locations_list: list[Location] = []
+
+# Technical Boat Params
+# Min, and Max times plus time step in minutes
+activity_times = {Activity.ActivityType.TECHNICAL: (30, 40, 1),
+                  Activity.ActivityType.MEDICAL: (15, 20, 1),
+                  Activity.ActivityType.RESCUE: (10, 15, 1)}
+
+boat_speeds = {Activity.ActivityType.TECHNICAL: (m_base_speed * 0.5, m_base_speed * 1.5, 1),
+               Activity.ActivityType.MEDICAL: (m_base_speed * 1, m_base_speed * 2, 1),
+               Activity.ActivityType.RESCUE: (m_base_speed * 2, m_base_speed * 3, 1)}
+color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
+             Activity.ActivityType.RESCUE: "lightgreen",
+             Activity.ActivityType.MEDICAL: "salmon"}
+
+# ===== TEST QUANTITIES =====
+# A list of quantities of locations
+m_nums_locations: list[int] = list(range(start=2, stop=50, step=1))
+# A list of map sizes
+m_map_sizes: list[int] = list(range(start=10, stop=100, step=1))
+# Number of tests per difficulty level
+m_num_tests_per_difficulty: int = 3
+# The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
+m_num_tests: int = len(m_nums_locations) * len(m_map_sizes) * m_num_tests_per_difficulty
+m_num_tests_succeeded: int = 0
+
+m_num_tests_to_sample: int = 5
+m_test_numbers_to_sample: set[int] = random.choices(population=range(start=1, stop=m_num_tests, step=1),
+                                                    k=m_num_tests_to_sample)
+m_sampled_tests: set[TestObject] = set()
+
+# ===== MAIN SCRIPT BODY =====
+currTestNum: int = 1
+sampleTest: bool = False
+for mapSize in m_map_sizes:
+    for numLocations in m_nums_locations:
+        if currTestNum in m_test_numbers_to_sample:
+            sampleTest = True
+        else:
+            sampleTest = False
+
+        tempTest: TestObject = generateTest(p_mapSize=mapSize, p_numLocations=numLocations)
+
+        testSucceeded: bool = scheduleTest(p_test=tempTest)
+        tempTest.succeeded = testSucceeded
+        if testSucceeded:
+            m_num_tests_succeeded += 1
+
+        if sampleTest:
+            m_sampled_tests.add(tempTest)
+
+        currTestNum += 1
+
+for test in m_sampled_tests:
+    graph = test.netx_graph
+    print_edges(graph)
