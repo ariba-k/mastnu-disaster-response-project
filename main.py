@@ -169,13 +169,13 @@ def create_graph(locations: list[Location]):
     return G
 
 
-def draw_graph(G, dim, p_num_locations: int = None):
+def draw_graph(G, dim, p_num_locations: int = None, p_locations: list[Location]=None):
     ncols, nrows = dim
     fig, ax = plt.subplots()
 
     # Define the positions in a grid layout
     pos = {(location_number, activity_type): (coords[1] + 0.5 * (activity_type.value - 2), nrows - coords[0])
-           for location_number, coords in [(loc.number, loc.coords) for loc in locations_list]
+           for location_number, coords in [(loc.number, loc.coords) for loc in p_locations]
            for activity_type in Activity.ActivityType}
 
     node_colors = [color_map[node[1]] for node in G.nodes]
