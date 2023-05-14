@@ -377,7 +377,6 @@ m_test_numbers_to_sample: list[int] = random.choices(population=range(1, m_num_t
 m_all_tests: set[TestObject] = set()
 m_sampled_tests: set[TestObject] = set()
 
-exit()
 # ===== MAIN SCRIPT BODY =====
 currTestNum: int = 1
 sampleTest: bool = False
