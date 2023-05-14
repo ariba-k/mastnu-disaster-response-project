@@ -81,11 +81,10 @@ class Activity:
 
     def __init__(self, p_type: ActivityType = None):
         self.type = p_type
-
+        self.duration = self.generate_activity_duration()
     def generate_activity_duration(self):
-        activity_duration = generate_random_window(activity_times[self.type])
-        self.duration = activity_duration
-
+        activity_duration: tuple[int, int] = generate_random_window(activity_times[self.type])
+        return activity_duration
 
 class Location:
     number: int = None
