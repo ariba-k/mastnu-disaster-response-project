@@ -49,7 +49,6 @@ def scheduleTest(p_test: TestObject = None) -> bool:
     raise NotImplementedError()
 
 
-
 class TestObject:
     locations: list[Location] = None
     netx_graph: DiGraph = None
@@ -169,7 +168,7 @@ def create_graph(locations: list[Location]):
     return G
 
 
-def draw_graph(G, dim, p_num_locations: int = None, p_locations: list[Location]=None):
+def draw_graph(G, dim, p_num_locations: int = None, p_locations: list[Location] = None):
     ncols, nrows = dim
     fig, ax = plt.subplots()
 
@@ -188,7 +187,8 @@ def draw_graph(G, dim, p_num_locations: int = None, p_locations: list[Location]=
                                   markerfacecolor=color_map[activity_type])
                        for activity_type in Activity.ActivityType]
 
-    avg_location_distance = sum(loc1.distances[loc2.number] for loc1 in locations_list for loc2 in locations_list if loc1.number != loc2.number) / (p_num_locations * (p_num_locations - 1))
+    avg_location_distance = sum(loc1.distances[loc2.number] for loc1 in locations_list for loc2 in locations_list if
+                                loc1.number != loc2.number) / (p_num_locations * (p_num_locations - 1))
 
     radius_scaling_factor = 0.25
 
@@ -295,7 +295,8 @@ def draw_mastnu(G):
     plt.show()
 
 
-def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None, p_tests: set[TestObject]=None) -> list[Location]:
+def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None, p_tests: set[TestObject] = None) -> list[
+    Location]:
     tempLocationsList: list[Location] = []
     for i in range(1, p_numLocations + 1):
 
@@ -311,8 +312,6 @@ def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None, p
         temp_location: Location = Location(p_number=i, p_coords=rand_point)
         temp_location.fill_location_with_random_activities()
         tempLocationsList.append(temp_location)
-
-
 
     for loc1 in tempLocationsList:
         for loc2 in tempLocationsList:
@@ -374,7 +373,7 @@ m_num_tests_succeeded: int = 0
 
 m_num_tests_to_sample: int = 5
 m_test_numbers_to_sample: list[int] = random.choices(population=range(1, m_num_tests, 1),
-                                                    k=m_num_tests_to_sample)
+                                                     k=m_num_tests_to_sample)
 m_all_tests: set[TestObject] = set()
 m_sampled_tests: set[TestObject] = set()
 
@@ -388,7 +387,7 @@ for mapSize in m_map_sizes:
             logging.info(msg=f'[{mapSize}x{mapSize} MAP] [{numLocations} LOCS] [TEST {currTestNum}]: Beginning test...')
             if currTestNum in m_test_numbers_to_sample:
                 sampleTest = True
-                logging.info( msg='** SAMPLING TEST **')
+                logging.info(msg='** SAMPLING TEST **')
             else:
                 sampleTest = False
 
@@ -397,7 +396,7 @@ for mapSize in m_map_sizes:
             # testSucceeded: bool = scheduleTest(p_test=tempTest)
             testSucceeded: bool = True
             testEndTime: float = time()
-            testTime: float = (testEndTime-testStartTime)
+            testTime: float = (testEndTime - testStartTime)
 
             tempTest.succeeded = testSucceeded
             m_all_tests.add(tempTest)
@@ -411,7 +410,8 @@ for mapSize in m_map_sizes:
 
             currTestNum += 1
 totalEndTime: float = time()
-logging.info(msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime-totalStartTime):.4f} seconds')
+logging.info(
+    msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime - totalStartTime):.4f} seconds')
 
 for test in m_sampled_tests:
     graph = test.netx_graph
