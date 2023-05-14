@@ -82,9 +82,11 @@ class Activity:
     def __init__(self, p_type: ActivityType = None):
         self.type = p_type
         self.duration = self.generate_activity_duration()
+
     def generate_activity_duration(self):
         activity_duration: tuple[int, int] = generate_random_window(activity_times[self.type])
         return activity_duration
+
 
 class Location:
     number: int = None
@@ -118,7 +120,6 @@ class Location:
         self.activities = [Activity(activity_type) for activity_type in selected_activity_types]
 
     def calculate_distance_between_locations(self, loc2: Location) -> None:
-        # FIXME: Does this return what I think it does? This does not calc Euclidean
         self.distances[loc2.number] = math.dist(self.coords, loc2.coords)
 
     def generate_location_duration(self, loc2: Location) -> None:
@@ -126,7 +127,7 @@ class Location:
             distance = self.distances[loc2.number]
             min_speed, max_speed, step = speed
             random_speed_range = generate_random_window((int(min_speed), int(max_speed), step))
-            min_duration, max_duration = (distance / random_speed_range[0]), (distance / random_speed_range[1])
+            max_duration, min_duration = (distance / random_speed_range[0]), (distance / random_speed_range[1])
             self.durations[loc2.number][activity_type] = (min_duration, max_duration)
 
 
@@ -136,7 +137,6 @@ def create_graph(locations: list[Location]):
     for location in locations:
         activity_count = len(location.activities)
         for idx, activity in enumerate(location.activities):
-            activity.generate_activity_duration()
 
             # Set the 'type' attribute for each node based on the activity type
             node_attributes = {'activity': activity, 'type': activity.type}
@@ -275,8 +275,6 @@ def draw_mastnu(G):
         elif edge[2]['edge_type'] == 'inter':
             inter_edges.append(edge)
 
-    edge_colors = [edge[2]['color'] for edge in G.edges(data=True)]
-
     nx.draw_networkx_edges(G, pos, edgelist=intra_edges, edge_color='blue', width=2.0, alpha=0.8)
     nx.draw_networkx_edges(G, pos, edgelist=inter_edges, edge_color='black', width=2.0, alpha=0.8)
 
@@ -340,10 +338,11 @@ def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObjec
     return finalTest
 
 
+
 # ===== MEMBER VARIABLES =====
 logging.basicConfig(level=logging.DEBUG, )
 m_logger: Logger = Logger(name='main_logger', level=logging.DEBUG)
-m_base_speed: float = 5.0
+m_base_speed: float = 2.0
 
 points_list: list[tuple[int, int]] = []
 locations_list: list[Location] = []
@@ -354,9 +353,9 @@ activity_times = {Activity.ActivityType.TECHNICAL: (30, 40, 1),
                   Activity.ActivityType.MEDICAL: (15, 20, 1),
                   Activity.ActivityType.RESCUE: (10, 15, 1)}
 
-boat_speeds = {Activity.ActivityType.TECHNICAL: (m_base_speed * 0.5, m_base_speed * 1.5, 1),
-               Activity.ActivityType.MEDICAL: (m_base_speed * 1, m_base_speed * 2, 1),
-               Activity.ActivityType.RESCUE: (m_base_speed * 2, m_base_speed * 3, 1)}
+boat_speeds = {Activity.ActivityType.TECHNICAL: (m_base_speed * 0.5, m_base_speed * 3.5, 1),
+               Activity.ActivityType.MEDICAL: (m_base_speed * 1, m_base_speed * 4, 1),
+               Activity.ActivityType.RESCUE: (m_base_speed * 2, m_base_speed * 5, 1)}
 color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
              Activity.ActivityType.RESCUE: "lightgreen",
              Activity.ActivityType.MEDICAL: "salmon"}
@@ -378,11 +377,12 @@ m_test_numbers_to_sample: list[int] = random.choices(population=range(1, m_num_t
 m_all_tests: set[TestObject] = set()
 m_sampled_tests: set[TestObject] = set()
 
+exit()
 # ===== MAIN SCRIPT BODY =====
 currTestNum: int = 1
 sampleTest: bool = False
 
-logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests*0.00903:.5f} seconds')
+logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests * 0.00903:.5f} seconds')
 Time.sleep(3)
 
 totalStartTime: float = time()
@@ -421,6 +421,7 @@ totalEndTime: float = time()
 logging.info(
     msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime - totalStartTime):.4f} seconds')
 
+print(m_all_tests)
 # for test in m_sampled_tests:
 #     graph = test.netx_graph
 #     print_edges(graph)

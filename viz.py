@@ -3,12 +3,9 @@ import seaborn as sns
 import numpy as np
 
 
-def process_data(path):
-    # return list of results
+# List of tuples like (grid_size, num_locations, success_rate)
+def process_data(raw_results):
     return []
-
-
-results = process_data('path/to/eval/data')  # List of tuples like (grid_size, num_locations, success_rate)
 
 
 def scatter_plot_3D(results):
