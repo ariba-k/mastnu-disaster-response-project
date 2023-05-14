@@ -330,7 +330,7 @@ def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObjec
     finalTest: TestObject
 
     # Generate list of locations
-    locationsList: list[Location] = generateListOfLocations(p_numLocations=p_numLocations)
+    locationsList: list[Location] = generateListOfLocations(p_mapSize=p_mapSize, p_numLocations=p_numLocations)
     G = create_graph(locationsList)
     finalTest = TestObject(p_locations=locationsList, p_netx_graph=G, p_map_size=p_mapSize)
     return finalTest
@@ -357,9 +357,9 @@ color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
 
 # ===== TEST QUANTITIES =====
 # A list of quantities of locations
-m_nums_locations: list[int] = list(range(start=2, stop=50, step=1))
+m_nums_locations: list[int] = list(range(2, 50, 1))
 # A list of map sizes
-m_map_sizes: list[int] = list(range(start=10, stop=100, step=1))
+m_map_sizes: list[int] = list(range(10, 100, 1))
 # Number of tests per difficulty level
 m_num_tests_per_difficulty: int = 3
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
@@ -367,7 +367,7 @@ m_num_tests: int = len(m_nums_locations) * len(m_map_sizes) * m_num_tests_per_di
 m_num_tests_succeeded: int = 0
 
 m_num_tests_to_sample: int = 5
-m_test_numbers_to_sample: set[int] = random.choices(population=range(start=1, stop=m_num_tests, step=1),
+m_test_numbers_to_sample: set[int] = random.choices(population=range(1, m_num_tests, 1),
                                                     k=m_num_tests_to_sample)
 m_sampled_tests: set[TestObject] = set()
 
@@ -376,7 +376,7 @@ currTestNum: int = 1
 sampleTest: bool = False
 for mapSize in m_map_sizes:
     for numLocations in m_nums_locations:
-        for i in range(start=1, stop=m_num_tests_per_difficulty):
+        for i in range(1, m_num_tests_per_difficulty, 1):
             if currTestNum in m_test_numbers_to_sample:
                 sampleTest = True
             else:
