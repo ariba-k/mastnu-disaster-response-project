@@ -367,7 +367,7 @@ m_num_tests: int = len(m_nums_locations) * len(m_map_sizes) * m_num_tests_per_di
 m_num_tests_succeeded: int = 0
 
 m_num_tests_to_sample: int = 5
-m_test_numbers_to_sample: set[int] = random.choices(population=range(1, m_num_tests, 1),
+m_test_numbers_to_sample: list[int] = random.choices(population=range(1, m_num_tests, 1),
                                                     k=m_num_tests_to_sample)
 m_sampled_tests: set[TestObject] = set()
 
