@@ -399,7 +399,8 @@ for mapSize in m_map_sizes:
             testStartTime: float = time()
             tempTest: TestObject = generateTest(p_mapSize=mapSize, p_numLocations=numLocations)
             # testSucceeded: bool = scheduleTest(p_test=tempTest)
-            testSucceeded: bool = True
+            testOutcomes: list = [False, True]
+            testSucceeded: bool = random.choice(testOutcomes)
             testEndTime: float = time()
             testTime: float = (testEndTime - testStartTime)
 
