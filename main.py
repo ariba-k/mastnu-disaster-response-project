@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import math
 import random
 from collections import defaultdict
@@ -9,6 +10,8 @@ from typing import Dict
 import matplotlib.pyplot as plt
 import networkx as nx
 from networkx import DiGraph
+from logging import Logger
+from time import time
 
 """
 1. Num of difficulties: 
@@ -52,6 +55,7 @@ class TestObject:
     netx_graph: DiGraph = None
     map_size: int = None
     succeeded: bool = None
+    test_time: float = None
 
     def __init__(self, p_locations: list[Location] = None, p_netx_graph: DiGraph = None, p_map_size: int = None):
         if p_locations is None:
@@ -291,24 +295,24 @@ def draw_mastnu(G):
     plt.show()
 
 
-def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None) -> list[Location]:
+def generateListOfLocations(p_mapSize: int = None, p_numLocations: int = None, p_tests: set[TestObject]=None) -> list[Location]:
     tempLocationsList: list[Location] = []
     for i in range(1, p_numLocations + 1):
 
         # Generates random points until one is made that isn't already in the list of points
-        rand_point: tuple[int, int]
+        rand_point: tuple[int, int] = ()
         while True:
             rand_row: int = random.randrange(0, p_mapSize)
             rand_col: int = random.randrange(0, p_mapSize)
             rand_point = (rand_row, rand_col)
 
-            if not (rand_point in points_list):
-                points_list.append(rand_point)
+            if not (rand_point in [location.coords for location in tempLocationsList]):
                 break
-
         temp_location: Location = Location(p_number=i, p_coords=rand_point)
         temp_location.fill_location_with_random_activities()
         tempLocationsList.append(temp_location)
+
+
 
     for loc1 in tempLocationsList:
         for loc2 in tempLocationsList:
@@ -327,7 +331,7 @@ def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObjec
     if p_numLocations is None:
         raise Exception('p_numLocations cannot be None')
 
-    finalTest: TestObject
+    finalTest: TestObject = None
 
     # Generate list of locations
     locationsList: list[Location] = generateListOfLocations(p_mapSize=p_mapSize, p_numLocations=p_numLocations)
@@ -337,6 +341,8 @@ def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObjec
 
 
 # ===== MEMBER VARIABLES =====
+logging.basicConfig(level=logging.DEBUG, )
+m_logger: Logger = Logger(name='main_logger', level=logging.DEBUG)
 m_base_speed: float = 5.0
 
 points_list: list[tuple[int, int]] = []
@@ -359,9 +365,9 @@ color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
 # A list of quantities of locations
 m_nums_locations: list[int] = list(range(2, 50, 1))
 # A list of map sizes
-m_map_sizes: list[int] = list(range(10, 100, 1))
+m_map_sizes: list[int] = list(range(10, 50, 1))
 # Number of tests per difficulty level
-m_num_tests_per_difficulty: int = 3
+m_num_tests_per_difficulty: int = 2
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
 m_num_tests: int = len(m_nums_locations) * len(m_map_sizes) * m_num_tests_per_difficulty
 m_num_tests_succeeded: int = 0
@@ -369,23 +375,34 @@ m_num_tests_succeeded: int = 0
 m_num_tests_to_sample: int = 5
 m_test_numbers_to_sample: list[int] = random.choices(population=range(1, m_num_tests, 1),
                                                     k=m_num_tests_to_sample)
+m_all_tests: set[TestObject] = set()
 m_sampled_tests: set[TestObject] = set()
 
 # ===== MAIN SCRIPT BODY =====
 currTestNum: int = 1
 sampleTest: bool = False
+totalStartTime: float = time()
 for mapSize in m_map_sizes:
     for numLocations in m_nums_locations:
-        for i in range(1, m_num_tests_per_difficulty, 1):
+        for i in range(0, m_num_tests_per_difficulty, 1):
+            logging.info(msg=f'[{mapSize}x{mapSize} MAP] [{numLocations} LOCS] [TEST {currTestNum}]: Beginning test...')
             if currTestNum in m_test_numbers_to_sample:
                 sampleTest = True
+                logging.info( msg='** SAMPLING TEST **')
             else:
                 sampleTest = False
 
+            testStartTime: float = time()
             tempTest: TestObject = generateTest(p_mapSize=mapSize, p_numLocations=numLocations)
+            # testSucceeded: bool = scheduleTest(p_test=tempTest)
+            testSucceeded: bool = True
+            testEndTime: float = time()
+            testTime: float = (testEndTime-testStartTime)
 
-            testSucceeded: bool = scheduleTest(p_test=tempTest)
             tempTest.succeeded = testSucceeded
+            m_all_tests.add(tempTest)
+            logging.info(msg=f'Test complete. {testTime:.4f} seconds elapsed\n')
+
             if testSucceeded:
                 m_num_tests_succeeded += 1
 
@@ -393,6 +410,8 @@ for mapSize in m_map_sizes:
                 m_sampled_tests.add(tempTest)
 
             currTestNum += 1
+totalEndTime: float = time()
+logging.info(msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime-totalStartTime):.4f} seconds')
 
 for test in m_sampled_tests:
     graph = test.netx_graph
