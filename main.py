@@ -13,6 +13,7 @@ from networkx import DiGraph
 from logging import Logger
 
 import os, sys
+
 sys.path.insert(0, os.path.join(sys.path[0], sys.path[0] + '/scheduling'))
 
 # from scheduler.solve_decoupling import solve_decoupling_milp
@@ -26,7 +27,7 @@ from dc_checking.temporal_network import TemporalNetwork, SimpleTemporalConstrai
 #  from dc_checker.dc_be import DCCheckerBE
 
 from networks import MaSTNU
-from solve_decoupling import solve_decoupling #, solve_decoupling_milp, preprocess_networks
+from solve_decoupling import solve_decoupling  # , solve_decoupling_milp, preprocess_networks
 # from decouple_milp import NONE, MIN_TIME_SPAN, MAX_FLEXIBILITY, MAX_FLEXIBILITY_NAIVE, MAX_FLEXIBILITY_NEG_CKJ, MIN_LB_TIME_SPAN, MIN_LB_UB_TIME_SPAN, MIN_BIJ
 
 import time as Time
@@ -58,6 +59,7 @@ and lessons learned
 
 """
 
+
 def scheduleTest(p_test: TestObject = None, output_stats: bool = False) -> bool:
     """
     Shashank put a call to your MaSTNU code here
@@ -76,7 +78,8 @@ def scheduleTest(p_test: TestObject = None, output_stats: bool = False) -> bool:
         if agent not in agent2network:
             event = "{}-{}".format(agent, n[0])
             agent2network[agent] = TemporalNetwork()
-            agent2network[agent].add_constraint(SimpleTemporalConstraint('z', event, lb=0, name='ref_preceding_{}'.format(agent)))
+            agent2network[agent].add_constraint(
+                SimpleTemporalConstraint('z', event, lb=0, name='ref_preceding_{}'.format(agent)))
             agent2network[agent].add_event('z')
     for edge in p_test.netx_graph.edges(data=True):
         if edge[2]['edge_type'] == 'intra':
@@ -113,12 +116,14 @@ def scheduleTest(p_test: TestObject = None, output_stats: bool = False) -> bool:
     # draw_mastnu(p_test.netx_graph)
     return True
 
+
 def getTemporalConstraintData(e: tuple):
     return {"s": "{}-{}".format(e[0][1].name, e[0][0]),
             "e": "{}-{}".format(e[1][1].name, e[1][0]),
             "lb": e[2]['duration'][0],
             "ub": e[2]['duration'][0],
             "name": "{}{}-{}{}".format(e[0][1].name, e[0][0], e[1][1].name, e[1][0])}
+
 
 class TestObject:
     locations: list[Location] = None
@@ -239,8 +244,8 @@ def create_graph(locations: list[Location]):
     return G
 
 
-def draw_graph(G, dim, p_num_locations: int = None, p_locations: list[Location] = None):
-    ncols, nrows = dim
+def draw_graph(G, map_size, p_num_locations: int = None, p_locations: list[Location] = None):
+    ncols, nrows = map_size, map_size
     fig, ax = plt.subplots()
 
     # Define the positions in a grid layout
@@ -410,7 +415,7 @@ def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObjec
 
 
 # ===== MEMBER VARIABLES =====
-logging.basicConfig(level=logging.INFO )
+logging.basicConfig(level=logging.INFO)
 m_logger: Logger = Logger(name='main_logger', level=logging.DEBUG)
 m_base_speed: float = 2.0
 
@@ -432,9 +437,9 @@ color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
 
 # ===== TEST QUANTITIES =====
 # A list of quantities of locations
-m_nums_locations: list[int] = list(range(2, 10, 1))  # 50
+m_nums_locations: list[int] = list(range(2, 50, 1))
 # A list of map sizes
-m_map_sizes: list[int] = list(range(10, 20, 1))  # 50
+m_map_sizes: list[int] = list(range(10, 50, 1))
 # Number of tests per difficulty level
 m_num_tests_per_difficulty: int = 2
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
@@ -494,11 +499,11 @@ logging.info(
 
 results = process_data(m_all_tests)
 print(m_num_tests_succeeded)
-# scatter_plot_3D(results)
-# heat_map(results)
+scatter_plot_3D(results)
+heat_map(results)
 sensitivity_analysis(results, num_fixed_vals=5)
 
-draw_graph(lastSuccess.netx_graph)
+draw_graph(lastSuccess.netx_graph, lastSuccess.map_size, len(lastSuccess.locations), lastSuccess.locations)
 draw_mastnu(lastSuccess.netx_graph)
 
 # for test in m_sampled_tests:

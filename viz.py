@@ -61,7 +61,7 @@ def heat_map(results):
     heatmap_data = np.zeros((len(num_locations_list), len(grid_sizes)))
 
     for r in results:
-        grid_size, num_locations, success_rate = r
+        grid_size, num_locations, success_rate, _ = r
         i = grid_sizes.index(grid_size)
         j = num_locations_list.index(num_locations)
         heatmap_data[j, i] = success_rate
