@@ -12,7 +12,7 @@ It is assumed that the user has a basic understanding of the use of python and p
 ___
 SUMMARY OF CODE FUNCTIONALITY
 ----
-The code is broken into 3 primary files, each handling a distinct element of the implementation's functionality.
+The code is broken into 3 primary files and one dir, each handling a distinct element of the implementation's functionality.
 
 1. viz.py: Contains the code used for visualizations and eval graphs.
 2. scheduling (dir): Contains the implementation of the MaSTNU framework, and all the code responsible for scheduling a given test and handing back a response.
