@@ -13,6 +13,7 @@ from networkx import DiGraph
 from logging import Logger
 import time as Time
 from time import time
+from viz import process_data, scatter_plot_3D, heat_map, sensitivity_analysis
 
 """
 1. Num of difficulties: 
@@ -339,9 +340,8 @@ def generateTest(p_mapSize: int = None, p_numLocations: int = None) -> TestObjec
     return finalTest
 
 
-
 # ===== MEMBER VARIABLES =====
-logging.basicConfig(level=logging.DEBUG, )
+logging.basicConfig(level=logging.INFO )
 m_logger: Logger = Logger(name='main_logger', level=logging.DEBUG)
 m_base_speed: float = 2.0
 
@@ -363,9 +363,9 @@ color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
 
 # ===== TEST QUANTITIES =====
 # A list of quantities of locations
-m_nums_locations: list[int] = list(range(2, 50, 1))
+m_nums_locations: list[int] = list(range(2, 10, 1))  # 50
 # A list of map sizes
-m_map_sizes: list[int] = list(range(10, 50, 1))
+m_map_sizes: list[int] = list(range(10, 20, 1))  # 50
 # Number of tests per difficulty level
 m_num_tests_per_difficulty: int = 2
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
@@ -421,7 +421,11 @@ totalEndTime: float = time()
 logging.info(
     msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime - totalStartTime):.4f} seconds')
 
-print(m_all_tests)
+results = process_data(m_all_tests)
+# scatter_plot_3D(results)
+# heat_map(results)
+# sensitivity_analysis(results, num_fixed_vals=5)
+
 # for test in m_sampled_tests:
 #     graph = test.netx_graph
 #     print_edges(graph)
