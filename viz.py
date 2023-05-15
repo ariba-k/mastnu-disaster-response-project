@@ -1,102 +1,146 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
+from collections import defaultdict
+from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-# List of tuples like (grid_size, num_locations, success_rate)
-def process_data(raw_results):
-    return []
+# List of tuples like (grid_size, num_locations, success_rate, runtime)
+def process_data(test_objects):
+    result_dict = defaultdict(lambda: {'total_tests': 0, 'success_tests': 0, 'total_runtime': 0})
+
+    for test_object in test_objects:
+        grid_size = test_object.map_size
+        num_locations = len(test_object.locations)
+        success = test_object.succeeded
+        runtime = test_object.test_time
+
+        result_dict[(grid_size, num_locations)]['total_tests'] += 1
+        if success:
+            result_dict[(grid_size, num_locations)]['success_tests'] += 1
+        result_dict[(grid_size, num_locations)]['total_runtime'] += runtime
+
+    results = [(params[0], params[1], result['success_tests'] / result['total_tests'], result['total_runtime']) for
+               params, result in result_dict.items()]
+
+    return results
 
 
 def scatter_plot_3D(results):
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
-    for r in results:
-        grid_size, num_locations, success_rate = r
-        ax.scatter(grid_size, num_locations, success_rate, c=plt.cm.viridis(success_rate), s=50 * success_rate)
+    # Adding title to the plot
+    plt.title("Success Rate for Different Grid Sizes and Number of Locations")
+
+    norm = plt.Normalize(0, 1)
+    # low success rates will be represented by
+    # dark blue and high success rates by yellow
+    colors = plt.cm.viridis(norm([r[2] for r in results]))
+    sc = ax.scatter([r[0] for r in results], [r[1] for r in results], [r[2] for r in results], c=colors,
+                    s=50 * np.array([r[2] for r in results]))
 
     ax.set_xlabel('Grid Size')
     ax.set_ylabel('Number of Locations')
     ax.set_zlabel('Success Rate')
+
+    # Adding colorbar as legend
+    divider = make_axes_locatable(ax)
+    cax = divider.append_axes("right", size="5%", pad=0.1, axes_class=plt.Axes)
+    plt.colorbar(sc, cax=cax, label='Success Rate')
+
     plt.show()
 
 
 def heat_map(results):
     # Create a 2D array to store the success rate for each combination of grid size and number of locations
     grid_sizes = sorted(set(r[0] for r in results))
+
     num_locations_list = sorted(set(r[1] for r in results))
 
-    heatmap_data = np.zeros((len(grid_sizes), len(num_locations_list)))
+    heatmap_data = np.zeros((len(num_locations_list), len(grid_sizes)))
 
     for r in results:
         grid_size, num_locations, success_rate = r
         i = grid_sizes.index(grid_size)
         j = num_locations_list.index(num_locations)
-        heatmap_data[i, j] = success_rate
+        heatmap_data[j, i] = success_rate
 
-    # Plot the heatmap using seaborn
-    ax = sns.heatmap(heatmap_data, annot=True, fmt='.2f', xticklabels=grid_sizes, yticklabels=num_locations_list,
+    ax = sns.heatmap(heatmap_data, annot=True, fmt='.2f', yticklabels=num_locations_list, xticklabels=grid_sizes,
                      cmap='viridis')
     ax.set_xlabel('Grid Size')
     ax.set_ylabel('Number of Locations')
+    ax.set_title('Success Rate for Different Grid Sizes and Number of Locations')
+
     plt.show()
 
 
-def sensitivity_analysis(results, fixed_grid_size=None, fixed_num_locations=None):
-    # Create a grid for grid size and number of locations
-    grid_sizes = sorted(list(set(r[0] for r in results)))
-    num_locations_list = sorted(list(set(r[1] for r in results)))
+def sensitivity_analysis(results, num_fixed_vals):
+    results = np.array(results)
+
+    grid_sizes = sorted(set(results[:, 0]))
+    num_locations_list = sorted(set(results[:, 1]))
 
     # Create a grid for success rate
     success_rate_grid = np.zeros((len(num_locations_list), len(grid_sizes)))
+    # Create a grid for run time
+    runtime_grid = np.zeros((len(num_locations_list), len(grid_sizes)))
+
     for r in results:
-        i = grid_sizes.index(r[0])
-        j = num_locations_list.index(r[1])
-        success_rate_grid[j, i] = r[2]
+        grid_size, num_locations, success_rate, runtime = r
+        i = grid_sizes.index(grid_size)
+        j = num_locations_list.index(num_locations)
+        success_rate_grid[j, i] = success_rate
+        runtime_grid[j, i] = runtime
 
-    def line_plot():
-        if fixed_grid_size is not None:
-            fixed_index = grid_sizes.index(fixed_grid_size)
-            plt.plot(num_locations_list, success_rate_grid[:, fixed_index], label='Success Rate', marker='o')
-            plt.xlabel('Number of Locations')
-            plt.ylabel('Success Rate')
-            plt.title(f'Success Rate vs Number of Locations (Grid Size = {fixed_grid_size})')
-            plt.legend()
-            plt.show()
+    def line_plot_fixed_grid():
+        fixed_grid_sizes = np.linspace(min(grid_sizes), max(grid_sizes), num=num_fixed_vals, dtype=int)
+        for fixed_grid_size in fixed_grid_sizes:
+            fixed_grid_size_index = np.abs(np.array(grid_sizes) - fixed_grid_size).argmin()
+            plt.plot(num_locations_list, success_rate_grid[:, fixed_grid_size_index],
+                     label=f"Grid Size = {fixed_grid_size}", marker='o')
 
-        if fixed_num_locations is not None:
-            fixed_index = num_locations_list.index(fixed_num_locations)
-            plt.plot(grid_sizes, success_rate_grid[fixed_index, :], label='Success Rate', marker='o')
-            plt.xlabel('Grid Size')
-            plt.ylabel('Success Rate')
-            plt.title(f'Success Rate vs Grid Size (Number of Locations = {fixed_num_locations})')
-            plt.legend()
-            plt.show()
+        plt.xlabel('Number of Locations')
+        plt.ylabel('Success Rate')
+        plt.title('Success Rate vs Number of Locations (Fixed Grid Size)')
+        plt.legend()
+        plt.show()
 
-    def scatter_plot():
-        plt.scatter(results[:, 0], results[:, 1], c=results[:, 2], cmap='viridis')
+        for fixed_grid_size in fixed_grid_sizes:
+            fixed_grid_size_index = np.abs(np.array(grid_sizes) - fixed_grid_size).argmin()
+            plt.plot(num_locations_list, runtime_grid[:, fixed_grid_size_index],
+                     label=f"Grid Size = {fixed_grid_size}", marker='o')
+
+        plt.xlabel('Number of Locations')
+        plt.ylabel('Runtime')
+        plt.title('Runtime vs Number of Locations (Fixed Grid Size)')
+        plt.legend()
+        plt.show()
+
+    def line_plot_fixed_num_locations():
+        fixed_num_locations = np.linspace(min(num_locations_list), max(num_locations_list), num=num_fixed_vals,
+                                          dtype=int)
+        for fixed_num_location in fixed_num_locations:
+            fixed_num_location_index = np.abs(np.array(num_locations_list) - fixed_num_location).argmin()
+            plt.plot(grid_sizes, success_rate_grid[fixed_num_location_index, :],
+                     label=f"Num Locations = {fixed_num_location}", marker='o')
+
         plt.xlabel('Grid Size')
-        plt.ylabel('Number of Locations')
-        plt.title('Success Rate vs (Grid Size, Number of Locations)')
-        plt.colorbar(label='Success Rate')
+        plt.ylabel('Success Rate')
+        plt.title('Success Rate vs Grid Size (Fixed Number of Locations)')
+        plt.legend()
         plt.show()
 
-    def surface_plot():
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-        ax.plot_surface(np.array(grid_sizes)[None, :], np.array(num_locations_list)[:, None], success_rate_grid,
-                        cmap='viridis')
-        ax.set_xlabel('Grid Size')
-        ax.set_ylabel('Number of Locations')
-        ax.set_zlabel('Success Rate')
-        plt.title('Success Rate vs (Grid Size, Number of Locations)')
+        for fixed_num_location in fixed_num_locations:
+            fixed_num_location_index = np.abs(np.array(num_locations_list) - fixed_num_location).argmin()
+            plt.plot(grid_sizes, runtime_grid[fixed_num_location_index, :],
+                     label=f"Num Locations = {fixed_num_location}", marker='o')
+
+        plt.xlabel('Grid Size')
+        plt.ylabel('Runtime')
+        plt.title('Runtime vs Grid Size (Fixed Number of Locations)')
+        plt.legend()
         plt.show()
 
-    line_plot()
-    scatter_plot()
-    surface_plot()
-
-
-data = np.array([(grid_size, num_locations, success_rate) for grid_size, num_locations, success_rate in results])
-sensitivity_analysis(data, fixed_grid_size=0, fixed_num_locations=0)
+    line_plot_fixed_grid()
+    line_plot_fixed_num_locations()
