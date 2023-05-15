@@ -5,21 +5,23 @@ from collections import defaultdict
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
 
-# List of tuples like (grid_size, num_locations, success_rate)
+# List of tuples like (grid_size, num_locations, success_rate, runtime)
 def process_data(test_objects):
-    result_dict = defaultdict(lambda: {'total_tests': 0, 'success_tests': 0})
+    result_dict = defaultdict(lambda: {'total_tests': 0, 'success_tests': 0, 'total_runtime': 0})
 
     for test_object in test_objects:
         grid_size = test_object.map_size
         num_locations = len(test_object.locations)
         success = test_object.succeeded
+        runtime = test_object.test_time
 
         result_dict[(grid_size, num_locations)]['total_tests'] += 1
         if success:
             result_dict[(grid_size, num_locations)]['success_tests'] += 1
+        result_dict[(grid_size, num_locations)]['total_runtime'] += runtime
 
-    results = [(params[0], params[1], result['success_tests'] / result['total_tests']) for params, result in
-               result_dict.items()]
+    results = [(params[0], params[1], result['success_tests'] / result['total_tests'], result['total_runtime']) for
+               params, result in result_dict.items()]
 
     return results
 
@@ -81,11 +83,15 @@ def sensitivity_analysis(results, num_fixed_vals):
 
     # Create a grid for success rate
     success_rate_grid = np.zeros((len(num_locations_list), len(grid_sizes)))
+    # Create a grid for run time
+    runtime_grid = np.zeros((len(num_locations_list), len(grid_sizes)))
+
     for r in results:
-        grid_size, num_locations, success_rate = r
+        grid_size, num_locations, success_rate, runtime = r
         i = grid_sizes.index(grid_size)
         j = num_locations_list.index(num_locations)
         success_rate_grid[j, i] = success_rate
+        runtime_grid[j, i] = runtime
 
     def line_plot_fixed_grid():
         fixed_grid_sizes = np.linspace(min(grid_sizes), max(grid_sizes), num=num_fixed_vals, dtype=int)
@@ -100,6 +106,17 @@ def sensitivity_analysis(results, num_fixed_vals):
         plt.legend()
         plt.show()
 
+        for fixed_grid_size in fixed_grid_sizes:
+            fixed_grid_size_index = np.abs(np.array(grid_sizes) - fixed_grid_size).argmin()
+            plt.plot(num_locations_list, runtime_grid[:, fixed_grid_size_index],
+                     label=f"Grid Size = {fixed_grid_size}", marker='o')
+
+        plt.xlabel('Number of Locations')
+        plt.ylabel('Runtime')
+        plt.title('Runtime vs Number of Locations (Fixed Grid Size)')
+        plt.legend()
+        plt.show()
+
     def line_plot_fixed_num_locations():
         fixed_num_locations = np.linspace(min(num_locations_list), max(num_locations_list), num=num_fixed_vals,
                                           dtype=int)
@@ -111,6 +128,17 @@ def sensitivity_analysis(results, num_fixed_vals):
         plt.xlabel('Grid Size')
         plt.ylabel('Success Rate')
         plt.title('Success Rate vs Grid Size (Fixed Number of Locations)')
+        plt.legend()
+        plt.show()
+
+        for fixed_num_location in fixed_num_locations:
+            fixed_num_location_index = np.abs(np.array(num_locations_list) - fixed_num_location).argmin()
+            plt.plot(grid_sizes, runtime_grid[fixed_num_location_index, :],
+                     label=f"Num Locations = {fixed_num_location}", marker='o')
+
+        plt.xlabel('Grid Size')
+        plt.ylabel('Runtime')
+        plt.title('Runtime vs Grid Size (Fixed Number of Locations)')
         plt.legend()
         plt.show()
 

@@ -424,7 +424,7 @@ logging.info(
 results = process_data(m_all_tests)
 # scatter_plot_3D(results)
 # heat_map(results)
-# sensitivity_analysis(results, num_fixed_vals=5)
+sensitivity_analysis(results, num_fixed_vals=5)
 
 # for test in m_sampled_tests:
 #     graph = test.netx_graph
