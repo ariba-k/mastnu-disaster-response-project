@@ -27,6 +27,6 @@ The code is broken into 3 primary files and one dir, each handling a distinct el
 5. main.py: Contains the bulk of the connective code for the project. Specifically, responsible for generating tests, calling the scheduler, assessing results, and generating plots.
  
 ___
-Running With A Simple Example
+RUNNING WITH A SIMPLE EXAMPLE
 ----
 The current main.py file is configured to run a simple example. However due to the randomness of the generation, if for some reason the solver is not able to find a solution, you can increased the upper range for the variables m_nums_locations and m_map_sizes. Note: larger ranges causes increased run time.
