@@ -26,3 +26,8 @@ The code is broken into 3 primary files, each handling a distinct element of the
          Contains an Enum to describe the type of activity, fields to store each the type and duration of the activity, and a method to randomly generate the activity's duration based on its type
    2. Script:
         Responsible for generating tests, calling the scheduler, assessing results, and generating plots.
+ 
+___
+Running With A Simple Example
+----
+The current main.py file is configured to run a simple example. However due to the randomness of the generation, if for some reason the solver is not able to find a solution, you can increased the upper range for the variables m_nums_locations and m_map_sizes. Note: larger ranges causes increased run time.
