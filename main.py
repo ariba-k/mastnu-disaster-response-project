@@ -75,7 +75,7 @@ class Activity:
         TECHNICAL = 1
         RESCUE = 2
         MEDICAL = 3
-        COMMUNICATION = 4
+        # COMMUNICATION = 4
 
     type: ActivityType = None
     duration: tuple[int, int]
