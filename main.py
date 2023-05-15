@@ -11,6 +11,24 @@ import matplotlib.pyplot as plt
 import networkx as nx
 from networkx import DiGraph
 from logging import Logger
+
+import os, sys
+sys.path.insert(0, os.path.join(sys.path[0], sys.path[0] + '/scheduling'))
+
+# from scheduler.solve_decoupling import solve_decoupling_milp
+# from scheduler.utils.dc_checking.temporal_network import (
+#     SimpleContingentTemporalConstraint, SimpleTemporalConstraint,
+#     TemporalNetwork)
+# from scheduler.utils.decouple_milp import NONE
+# from scheduler.utils.networks import MaSTNU
+
+from dc_checking.temporal_network import TemporalNetwork, SimpleTemporalConstraint, SimpleContingentTemporalConstraint
+#  from dc_checker.dc_be import DCCheckerBE
+
+from networks import MaSTNU
+from solve_decoupling import solve_decoupling #, solve_decoupling_milp, preprocess_networks
+# from decouple_milp import NONE, MIN_TIME_SPAN, MAX_FLEXIBILITY, MAX_FLEXIBILITY_NAIVE, MAX_FLEXIBILITY_NEG_CKJ, MIN_LB_TIME_SPAN, MIN_LB_UB_TIME_SPAN, MIN_BIJ
+
 import time as Time
 from time import time
 
@@ -39,16 +57,67 @@ and lessons learned
 
 """
 
-
-def scheduleTest(p_test: TestObject = None) -> bool:
+def scheduleTest(p_test: TestObject = None, output_stats: bool = False) -> bool:
     """
     Shashank put a call to your MaSTNU code here
     """
     if p_test is None:
         raise Exception('p_test cannot be None')
 
-    raise NotImplementedError()
+    # draw_mastnu(p_test.netx_graph)
 
+    ext_conts = []
+    ext_reqs = []
+    agent2network = {}
+
+    for n in p_test.netx_graph.nodes():
+        agent = n[1].name
+        if agent not in agent2network:
+            event = "{}-{}".format(agent, n[0])
+            agent2network[agent] = TemporalNetwork()
+            agent2network[agent].add_constraint(SimpleTemporalConstraint('z', event, lb=0, name='ref_preceding_{}'.format(agent)))
+            agent2network[agent].add_event('z')
+    for edge in p_test.netx_graph.edges(data=True):
+        if edge[2]['edge_type'] == 'intra':
+            # if edge[2]['color'] == 'b':
+            #     ext_reqs.append(SimpleTemporalConstraint(**getTemporalConstraintData(edge)))
+            # if edge[2]['color'] == 'k':
+            #     ext_conts.append(SimpleContingentTemporalConstraint(**getTemporalConstraintData(edge)))
+            ext_reqs.append(SimpleTemporalConstraint(**getTemporalConstraintData(edge)))
+        else:
+            agent = edge[0][1].name
+            # if edge[2]['color'] == 'b':
+            #     agent2network[agent].add_constraint(SimpleTemporalConstraint(**getTemporalConstraintData(edge)))
+            # if edge[2]['color'] == 'k':
+            #     agent2network[agent].add_constraint(SimpleContingentTemporalConstraint(**getTemporalConstraintData(edge)))
+            agent2network[agent].add_constraint(SimpleContingentTemporalConstraint(**getTemporalConstraintData(edge)))
+
+    mastnu = MaSTNU(agent2network, ext_reqs, ext_conts, 'z')
+    # try:
+    #     # decoupling, stats = solve_decoupling_milp(mastnu, output_stats=True)
+    #     decoupling, stats = solve_decoupling(mastnu, output_stats=True)
+    # except:
+    #     return False
+    decoupling, conflicts, stats = solve_decoupling(mastnu, output_stats=True)
+    if decoupling is None:
+        print("none found.")
+        return False
+
+    if output_stats:
+        print(decoupling.pprint())
+        print(decoupling.pprint_proof(ext_reqs, ext_conts))
+        print("Objective value: {}".format(decoupling.objective_value))
+
+    print("decoupling found.")
+    # draw_mastnu(p_test.netx_graph)
+    return True
+
+def getTemporalConstraintData(e: tuple):
+    return {"s": "{}-{}".format(e[0][1].name, e[0][0]),
+            "e": "{}-{}".format(e[1][1].name, e[1][0]),
+            "lb": e[2]['duration'][0],
+            "ub": e[2]['duration'][0],
+            "name": "{}{}-{}{}".format(e[0][1].name, e[0][0], e[1][1].name, e[1][0])}
 
 class TestObject:
     locations: list[Location] = None
@@ -362,9 +431,9 @@ color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
 
 # ===== TEST QUANTITIES =====
 # A list of quantities of locations
-m_nums_locations: list[int] = list(range(2, 50, 1))
+m_nums_locations: list[int] = list(range(2, 20, 1))
 # A list of map sizes
-m_map_sizes: list[int] = list(range(10, 50, 1))
+m_map_sizes: list[int] = list(range(10, 20, 1))
 # Number of tests per difficulty level
 m_num_tests_per_difficulty: int = 2
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
@@ -397,9 +466,9 @@ for mapSize in m_map_sizes:
 
             testStartTime: float = time()
             tempTest: TestObject = generateTest(p_mapSize=mapSize, p_numLocations=numLocations)
-            # testSucceeded: bool = scheduleTest(p_test=tempTest)
+            testSucceeded: bool = scheduleTest(p_test=tempTest)
             testOutcomes: list = [False, True]
-            testSucceeded: bool = random.choice(testOutcomes)
+            # testSucceeded: bool = random.choice(testOutcomes)
             testEndTime: float = time()
             testTime: float = (testEndTime - testStartTime)
 
@@ -421,6 +490,7 @@ logging.info(
     msg=f'==== ALL TESTS COMPLETE ====\nTests Run: {currTestNum}  \nTotal Time: {(totalEndTime - totalStartTime):.4f} seconds')
 
 print(m_all_tests)
+print(m_num_tests_succeeded)
 # for test in m_sampled_tests:
 #     graph = test.netx_graph
 #     print_edges(graph)
