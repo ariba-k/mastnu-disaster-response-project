@@ -14,6 +14,15 @@ SUMMARY OF CODE FUNCTIONALITY
 ----
 The code is broken into 3 primary files, each handling a distinct element of the implementation's functionality.
 
-viz.py: Contains most code used for visualizations and graphs.
-mastnu.py: Contains the implementation of the MaSTNU framework, and all the code responsible for scheduling a given test and handing back a response.
-main.py: 
+1. viz.py: Contains most code used for visualizations and graphs.
+2. mastnu.py: Contains the implementation of the MaSTNU framework, and all the code responsible for scheduling a given test and handing back a response.
+3. main.py: Contains the bulk of the connective code for the project. 
+   1. Classes:
+      1. TestObject:
+         Contains info about Locations involved, whether the test succeeded, and other parameters of the test such as map size and the time taken to run
+      2. Location: 
+         Defines a 'location' on the disaster relief map. Represents a location, its coordinates on the map, and the activities to be done there (ie debris removal, rescue, etc), as well as the distances between this location and all others
+      3. Activity: 
+         Contains an Enum to describe the type of activity, fields to store each the type and duration of the activity, and a method to randomly generate the activity's duration based on its type
+   2. Script:
+        Responsible for generating tests, calling the scheduler, assessing results, and generating plots.
