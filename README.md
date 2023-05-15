@@ -15,7 +15,7 @@ SUMMARY OF CODE FUNCTIONALITY
 The code is broken into 3 primary files, each handling a distinct element of the implementation's functionality.
 
 1. viz.py: Contains the code used for visualizations and eval graphs.
-2. mastnu.py: Contains the implementation of the MaSTNU framework, and all the code responsible for scheduling a given test and handing back a response.
+2. scheduling (dir): Contains the implementation of the MaSTNU framework, and all the code responsible for scheduling a given test and handing back a response.
 3. objects.py: Contains the object classes created for code
       1. TestObject:
          Contains info about Locations involved, whether the test succeeded, and other parameters of the test such as map size and the time taken to run
