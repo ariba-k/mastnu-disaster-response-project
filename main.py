@@ -455,6 +455,7 @@ logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests * 0.00903:
 Time.sleep(3)
 
 totalStartTime: float = time()
+lastSuccess = None
 for mapSize in m_map_sizes:
     for numLocations in m_nums_locations:
         for i in range(0, m_num_tests_per_difficulty, 1):
@@ -479,6 +480,7 @@ for mapSize in m_map_sizes:
             logging.info(msg=f'Test complete. {testTime:.4f} seconds elapsed\n')
 
             if testSucceeded:
+                lastSuccess = tempTest
                 m_num_tests_succeeded += 1
 
             if sampleTest:
@@ -495,6 +497,9 @@ print(m_num_tests_succeeded)
 # scatter_plot_3D(results)
 # heat_map(results)
 sensitivity_analysis(results, num_fixed_vals=5)
+
+draw_graph(lastSuccess.netx_graph)
+draw_mastnu(lastSuccess.netx_graph)
 
 # for test in m_sampled_tests:
 #     graph = test.netx_graph
