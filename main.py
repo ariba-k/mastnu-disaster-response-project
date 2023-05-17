@@ -15,10 +15,10 @@ from objects import TestObject, Location, Activity
 
 sys.path.insert(0, os.path.join(sys.path[0], sys.path[0] + '/scheduling'))
 
-from dc_checking.temporal_network import TemporalNetwork, SimpleTemporalConstraint, SimpleContingentTemporalConstraint
+from scheduling.dc_checking.temporal_network import TemporalNetwork, SimpleTemporalConstraint, SimpleContingentTemporalConstraint
 
-from networks import MaSTNU
-from solve_decoupling import solve_decoupling
+from scheduling.networks import MaSTNU
+from scheduling.solve_decoupling import solve_decoupling
 
 
 def scheduleTest(p_test: TestObject = None, output_stats: bool = False) -> bool:
