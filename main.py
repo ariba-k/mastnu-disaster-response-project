@@ -200,7 +200,7 @@ m_sampled_tests: set[TestObject] = set()
 currTestNum: int = 1
 sampleTest: bool = False
 
-logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests * 0.1:.5f} seconds')
+logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests * 0.014:.5f} seconds')
 Time.sleep(3)
 
 totalStartTime: float = time()
