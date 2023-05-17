@@ -49,18 +49,23 @@ def scheduleTest(p_test: TestObject = None, output_stats: bool = False) -> bool:
 
     mastnu = MaSTNU(agent2network, ext_reqs, ext_conts, 'z')
 
-    decoupling, conflicts, stats = solve_decoupling(mastnu, output_stats=True)
-    if decoupling is None:
-        print("none found.")
+    try:
+        decoupling, conflicts, stats = solve_decoupling(mastnu, output_stats=True)
+        if decoupling is None:
+            print("none found.")
+            return False
+
+        if output_stats:
+            print(decoupling.pprint())
+            print(decoupling.pprint_proof(ext_reqs, ext_conts))
+            print("Objective value: {}".format(decoupling.objective_value))
+
+        print("decoupling found.")
+        return True
+    except:
         return False
 
-    if output_stats:
-        print(decoupling.pprint())
-        print(decoupling.pprint_proof(ext_reqs, ext_conts))
-        print("Objective value: {}".format(decoupling.objective_value))
 
-    print("decoupling found.")
-    return True
 
 
 def getTemporalConstraintData(e: tuple):
@@ -180,7 +185,7 @@ m_nums_locations: list[int] = list(range(2, 10, 1))  # Increase upper bound (sec
 # A list of map sizes
 m_map_sizes: list[int] = list(range(10, 20, 1))  # Increase upper bound (second param) if solution not found
 # Number of tests per difficulty level
-m_num_tests_per_difficulty: int = 2
+m_num_tests_per_difficulty: int = 4
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
 m_num_tests: int = len(m_nums_locations) * len(m_map_sizes) * m_num_tests_per_difficulty
 m_num_tests_succeeded: int = 0
@@ -195,7 +200,7 @@ m_sampled_tests: set[TestObject] = set()
 currTestNum: int = 1
 sampleTest: bool = False
 
-logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests * 0.00903:.5f} seconds')
+logging.info(F'BEGINNING {m_num_tests} TESTS\nEst. Time: {m_num_tests * 0.1:.5f} seconds')
 Time.sleep(3)
 
 totalStartTime: float = time()
