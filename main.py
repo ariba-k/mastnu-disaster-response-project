@@ -181,9 +181,9 @@ color_map = {Activity.ActivityType.TECHNICAL: "skyblue",
 # ===== TEST QUANTITIES =====
 # A list of quantities of locations
 
-m_nums_locations: list[int] = list(range(2, 10, 1))  # Increase upper bound (second param) if solution not found
+m_nums_locations: list[int] = list(range(2, 15, 1))  # Increase upper bound (second param) if solution not found
 # A list of map sizes
-m_map_sizes: list[int] = list(range(10, 20, 1))  # Increase upper bound (second param) if solution not found
+m_map_sizes: list[int] = list(range(10, 60, 1))  # Increase upper bound (second param) if solution not found
 # Number of tests per difficulty level
 m_num_tests_per_difficulty: int = 4
 # The number of tests that will be performed based on the numbers of locations and map sizes to be assessed
