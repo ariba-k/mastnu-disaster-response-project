@@ -1,5 +1,6 @@
 # READ ME: mastnu-disaster-response-project
-16.412 Cognitive Robotics Final Project
+16.412 Cognitive Robotics Final Project 
+
 Ariba Khan, Carter Godin, Shahsank Swaminathan
 ___
 INSTRUCTIONS FOR USE
